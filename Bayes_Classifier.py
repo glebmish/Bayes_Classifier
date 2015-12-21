@@ -1,21 +1,49 @@
-def training():
-    n = 30
-    man = open('man_training.txt', 'r')
-    woman = open('woman_training.txt', 'r')
-    man_first = man_last = woman_first = woman_last = {}
-    for i in range(ord('a'), ord('z') + 1):
-        man_first[chr(i)] = man_last[chr(i)] = woman_first[chr(i)] = woman_last[chr(i)] = 0
+from collections import defaultdict
 
-    for name in man:
-        man_first[name[0]] += 1
-        man_last[name[-1]] += 1
-    for name in woman:
-        woman_first[name[0]] += 1
-        woman_last[name[-1]] += 1
+first = {}
+last = {}
+count = defaultdict(lambda: 0)
+
+def training():
+    for line in open('training_dataset.txt', 'r'):
+        value, type = line.split()
+        if type not in first:
+            first[type] = defaultdict(lambda: 0.0)
+            last[type] = defaultdict(lambda: 0.0)
+        first[type][value[0]] += 1
+        last[type][value[-1]] += 1
+        count[type] += 1
+
+    for type in first:
+        sum_first = sum(first[type].values())
+        for letter in first[type]:
+            first[type][letter] /= sum_first
+
+        sum_last = sum(last[type].values())
+        for letter in last[type]:
+            last[type][letter] /= sum_last
+
+
+def guess(name):
+    name = name.lower()
+    max_type = 'm'
+    max_prob = 0
+    for type in first:
+        print(name[0], name[-1], first[type][name[0]], first[type][name[-1]])
+        prob = first[type][name[0]] * last[type][name[-1]] * (count[type] / sum(count.values()))
+        if max_prob < prob:
+            max_prob = prob
+            max_type = type
+
+    return max_type
 
 training()
-
-# P(sex|pair(first, last)) = P(pair(first, last)|sex) * P(sex) / P(pair(first, last)) =
-# = ( P(first|sex) * P(sex) / P(first) ) * ( P(last|sex) * P(sex) / P(last) =
-# = (man_first[first] / sum(man_first) * 0.5) / ((man_first[first] + woman_first[first]) / (sum(man_first) + sum(woman first)) *
-# * (man_last[last] / sum(man_last) * 0.5) / ((man_last[last] + woman_last[last]) / (sum(man_last) + sum(woman last))
+print(first)
+print(last)
+while True:
+    name = raw_input("Write name: ")
+    type = guess(name)
+    if type == 'm':
+        print("man")
+    elif type == 'w':
+        print("woman")
