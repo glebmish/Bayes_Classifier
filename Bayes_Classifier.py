@@ -2,14 +2,14 @@ from collections import defaultdict
 
 first = {}
 last = {}
-count = defaultdict(lambda: 0)
+count = defaultdict(lambda: 0.0)
 
 def training():
     for line in open('training_dataset.txt', 'r'):
         value, type = line.split()
         if type not in first:
-            first[type] = defaultdict(lambda: 0.0)
-            last[type] = defaultdict(lambda: 0.0)
+            first[type] = defaultdict(lambda: 0.000001)
+            last[type] = defaultdict(lambda: 0.000001)
         first[type][value[0]] += 1
         last[type][value[-1]] += 1
         count[type] += 1
@@ -24,13 +24,14 @@ def training():
             last[type][letter] /= sum_last
 
 
-def guess(name):
+def classify(name):
     name = name.lower()
     max_type = 'm'
+
     max_prob = 0
     for type in first:
-        print(name[0], name[-1], first[type][name[0]], first[type][name[-1]])
         prob = first[type][name[0]] * last[type][name[-1]] * (count[type] / sum(count.values()))
+        print(type, prob)
         if max_prob < prob:
             max_prob = prob
             max_type = type
@@ -38,11 +39,9 @@ def guess(name):
     return max_type
 
 training()
-print(first)
-print(last)
 while True:
     name = raw_input("Write name: ")
-    type = guess(name)
+    type = classify(name)
     if type == 'm':
         print("man")
     elif type == 'w':
