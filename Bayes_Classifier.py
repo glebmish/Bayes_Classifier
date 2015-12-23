@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 
 first = {}
 last = {}
@@ -37,12 +38,3 @@ def classify(name):
             max_type = type
 
     return max_type
-
-training()
-while True:
-    name = raw_input("Write name: ")
-    type = classify(name)
-    if type == 'm':
-        print("man")
-    elif type == 'w':
-        print("woman")
