@@ -1,13 +1,29 @@
 from collections import defaultdict
+from math import log
 
-def divide(self, border):
-    pass
+def divide(self, frequency):
+    ct = 0
+    ds1 = DataSet()
+    ds2 = DataSet()
+
+    for record in self:
+        if ct == frequency:
+            ds2.add(record)
+            ct = 0
+        else:
+            ds1.add(record)
+            ct += 1
+
+    return ds1, ds2
 
 class DataSet:
-    def __init__(self, filename):
+    def __init__(self, filename = ''):
         self.dataset = []
         self.pos = 0
         self.len = 0
+        if filename = '':
+            return
+
         with open(filename, 'r') as file:
             for line in file:
                 self.dataset.append(tuple(line.split()))
@@ -23,6 +39,9 @@ class DataSet:
         else:
             return self.dataset[self.pos - 1]
 
+    def add(self, record):
+        self.dataset.append(record)
+        self.len += 1
 
 class Classifier:
     def __init__(self):
@@ -48,7 +67,7 @@ class BayesClassifier(Classifier):
         for value, type in dataset:
             if type not in self.first:
                 self.first[type] = defaultdict(lambda: 0.000001)
-                self.last[type] = defaultdict(lambda: 0.000001)
+                self.last[type] = defaultdict(lambda: 0.0001)
             self.first[type][value[0]] += 1
             self.last[type][value[-1]] += 1
             self.count[type] += 1
@@ -67,14 +86,14 @@ class BayesClassifier(Classifier):
             self.count[type] /= ct_sum
 
     def check(self, dataset):
-        ct = 0
-        falses = []
+        falses_ct = 0
+        falses_list = []
         for name, type in dataset:
             cl_type = self.classify(name)
             if cl_type != type:
-                ct += 1
-                falses.append((name, type, cl_type))
-        return float(ct) / dataset.len * 100, falses
+                falses_ct += 1
+                falses_list.append((name, type, cl_type))
+        return float(falses_ct) / dataset.len * 100, falses_list
 
     def classify(self, name):
         name = name.lower()
@@ -83,7 +102,7 @@ class BayesClassifier(Classifier):
         max_prob = 0
 
         for type in self.first:
-            prob = self.first[type][name[0]] * self.last[type][name[-1]] * self.count[type]
+            prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
             if max_prob < prob:
                 max_prob = prob
                 max_type = type
