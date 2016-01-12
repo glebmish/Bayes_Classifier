@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+def divide(self, border):
+    pass
 
 class DataSet:
     def __init__(self, filename):
@@ -20,10 +22,6 @@ class DataSet:
             raise StopIteration
         else:
             return self.dataset[self.pos - 1]
-
-    # def divide(self, border):
-    #   lDs = DataSet()
-    #    rDs = DataSet()
 
 
 class Classifier:
