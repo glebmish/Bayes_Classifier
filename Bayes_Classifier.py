@@ -1,12 +1,13 @@
 from collections import defaultdict
 from math import log
 
-def divide(self, frequency):
+
+def divide(dataset, frequency):
     ct = 0
     ds1 = DataSet()
     ds2 = DataSet()
 
-    for record in self:
+    for record in dataset:
         if ct == frequency:
             ds2.add(record)
             ct = 0
@@ -16,12 +17,13 @@ def divide(self, frequency):
 
     return ds1, ds2
 
+
 class DataSet:
     def __init__(self, filename = ''):
         self.dataset = []
         self.pos = 0
         self.len = 0
-        if filename = '':
+        if filename == '':
             return
 
         with open(filename, 'r') as file:
@@ -43,25 +45,31 @@ class DataSet:
         self.dataset.append(record)
         self.len += 1
 
+
 class Classifier:
     def __init__(self):
-        pass
+        raise Exception("Abstract")
 
     def train(self, dataset):
-        pass
+        raise Exception("Abstract")
 
     def check(self, dataset):
-        pass
+        raise Exception("Abstract")
 
     def classify(self, value):
-        pass
+        raise Exception("Abstract")
 
 
 class BayesClassifier(Classifier):
     def __init__(self):
-        self.first = {}
-        self.last = {}
+        self.stats = {}
         self.count = defaultdict(lambda: 0.0)
+
+    def functor(word):
+        return {
+            'first': word[0],
+            'last': word[-1],
+        }
 
     def train(self, dataset):
         for value, type in dataset:
@@ -102,7 +110,8 @@ class BayesClassifier(Classifier):
         max_prob = 0
 
         for type in self.first:
-            prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
+            # prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
+            prob = self.first[type][name[0]] + self.last[type][name[-1]] + self.count[type]
             if max_prob < prob:
                 max_prob = prob
                 max_type = type
