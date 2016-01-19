@@ -10,7 +10,7 @@ def guess():
             print("woman")
         name = raw_input("Write name: ")
 
-train, test = divide(DataSet("dataset.txt"), 5)
+train, test = divide(DataSet("dataset.txt"), 80)
 BC = BayesClassifier()
 BC.train(train)
 print BC.check(test)
