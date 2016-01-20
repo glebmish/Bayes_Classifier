@@ -114,11 +114,10 @@ class BayesClassifier(Classifier):
         name = name.lower()
 
         max_type = 'm'
-        max_prob = 0
+        max_prob = -1000
 
         for type in self.first:
-            # prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
-            prob = self.first[type][name[0]] * self.last[type][name[-1]] * self.count[type]
+            prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
             if max_prob < prob:
                 max_prob = prob
                 max_type = type
