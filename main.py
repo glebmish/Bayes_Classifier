@@ -1,5 +1,6 @@
 from Bayes_Classifier import *
 
+
 def guess():
     name = raw_input("Write name: ")
     while name != '0':
@@ -11,7 +12,7 @@ def guess():
         name = raw_input("Write name: ")
 
 train, test = divide(DataSet("dataset.txt"), 80)
-BC = BayesClassifier()
+BC = BayesClassifier(lambda x: {'first': x[0], 'last': x[-1]})
 BC.train(train)
 print BC.check(test)
 guess()

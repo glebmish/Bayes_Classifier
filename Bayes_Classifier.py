@@ -8,7 +8,7 @@ def divide(dataset, percent):
     :param percent: percent of records that should be stored in the first of returned datsets (with step of 10%)
     :return: two datasets: largest one first
     """
-
+    percent = min(100, percent)
     percent //= 10
     ct = 0
     ds1 = DataSet()
@@ -70,33 +70,27 @@ class Classifier:
 
 
 class BayesClassifier(Classifier):
-    def __init__(self):
-        self.first = {}
-        self.last = {}
+    def __init__(self, functor):
+        self.features = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0.000001)))
+        self.get_features = functor
         self.count = defaultdict(lambda: 0.0)
 
     def train(self, dataset):
         """Collects statistics from training dataset"""
         for value, type in dataset:
-            if type not in self.first:
-                self.first[type] = defaultdict(lambda: 0.000001)
-                self.last[type] = defaultdict(lambda: 0.0001)
-            self.first[type][value[0]] += 1
-            self.last[type][value[-1]] += 1
+            val_features = self.get_features(value)
+            for featName in val_features:
+                self.features[type][featName][val_features[featName]] += 1
             self.count[type] += 1
 
-        for type in self.first:
-            sum_first = sum(self.first[type].values())
-            for letter in self.first[type]:
-                self.first[type][letter] /= sum_first
-
-            sum_last = sum(self.last[type].values())
-            for letter in self.last[type]:
-                self.last[type][letter] /= sum_last
-
-        ct_sum = sum(self.count.values())
+        for type in self.features:
+            for featName in self.features[type]:
+                sum_feat = sum(self.features[type][featName].values())
+                for letter in self.features[type][featName]:
+                    self.features[type][featName][letter] /= sum_feat
+        sum_ct = sum(self.count.values())
         for type in self.count:
-            self.count[type] /= ct_sum
+            self.count[type] /= sum_ct
 
     def check(self, dataset):
         """Checks the false percent in testing dataset. Returns false percent and false records"""
@@ -112,12 +106,16 @@ class BayesClassifier(Classifier):
     def classify(self, name):
         """Classifies name based on collected statistics"""
         name = name.lower()
+        val_features = self.get_features(name)
 
         max_type = 'm'
         max_prob = -1000
 
-        for type in self.first:
-            prob = log(self.first[type][name[0]]) + log(self.last[type][name[-1]]) + log(self.count[type])
+        for type in self.features:
+            prob = log(self.count[type])
+
+            for featName in self.features[type]:
+                prob += log(self.features[type][featName][val_features[featName]])
             if max_prob < prob:
                 max_prob = prob
                 max_type = type
