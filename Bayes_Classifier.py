@@ -1,29 +1,40 @@
 from collections import defaultdict
 from math import log
+import random
 
 
 def divide(dataset, percent):
     """Divides one dataset on two
     :param dataset: dataset to divide
-    :param percent: percent of records that should be stored in the first of returned datsets (with step of 10%)
+    :param percent: percent of records that should be stored in the first of returned datsets
     :return: two datasets: largest one first
     """
     percent = min(100, percent)
-    percent //= 10
-    ct = 0
+    bigPercent = False
+    if percent > 50:
+        bigPercent = True
+        percent = 100 - percent
+
     ds1 = DataSet()
     ds2 = DataSet()
+    toDs1 = dataset.len / 100 * percent
+    used = [False] * dataset.len
 
-    for record in dataset:
-        if ct < percent:
-            ds1.add(record)
-        else:
-            ds2.add(record)
-        ct += 1
-        if ct == 10:
-            ct = 0
+    random.seed()
+    while ds1.len != toDs1:
+        cur = random.randint(0, dataset.len - 1)
+        if not used[cur]:
+            ds1.add(dataset.dataset[cur])
+            used[cur] = True
 
-    return ds1, ds2
+    for i in range(dataset.len):
+        if not used[i]:
+            ds2.add(dataset.dataset[i])
+
+    if bigPercent:
+        return ds2, ds1
+    else:
+        return ds1, ds2
 
 
 class DataSet:
