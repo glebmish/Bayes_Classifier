@@ -1,6 +1,8 @@
+# coding=utf-8
 from collections import defaultdict
 from math import log
 import random
+import codecs
 
 
 def divide(dataset, percent):
@@ -45,7 +47,7 @@ class DataSet:
         if filename == '':
             return
 
-        with open(filename, 'r') as file:
+        with codecs.open(filename, 'r', 'utf-8') as file:
             for line in file:
                 self.dataset.append(tuple(line.split()))
                 self.len += 1
