@@ -19,7 +19,7 @@ def divide(dataset, percent):
 
     ds1 = DataSet()
     ds2 = DataSet()
-    toDs1 = dataset.len / 100 * percent
+    toDs1 = int(dataset.len / 100.0 * percent)
     used = [False] * dataset.len
 
     random.seed()
@@ -109,19 +109,19 @@ class BayesClassifier(Classifier):
         """Checks the false percent in testing dataset. Returns false percent and false records"""
         falses_ct = 0
         falses_list = []
-        for name, type in dataset:
-            cl_type = self.classify(name)
+        for value, type in dataset:
+            cl_type = self.classify(value)
             if cl_type != type:
                 falses_ct += 1
-                falses_list.append((name, type, cl_type))
+                falses_list.append((value, type, cl_type))
         return float(falses_ct) / dataset.len * 100, falses_list
 
-    def classify(self, name):
-        """Classifies name based on collected statistics"""
-        name = name.lower()
-        val_features = self.get_features(name)
+    def classify(self, value):
+        """Classifies value based on collected statistics"""
+        value = value.lower()
+        val_features = self.get_features(value)
 
-        max_type = 'm'
+        max_type = None
         max_prob = -1000
 
         for type in self.features:
