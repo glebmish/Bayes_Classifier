@@ -107,14 +107,19 @@ class BayesClassifier(Classifier):
 
     def check(self, dataset):
         """Checks the false percent in testing dataset. Returns false percent and false records"""
-        falses_ct = 0
-        falses_list = []
+        pos_neg_table = dict( (t, dict([(t, 0) for t in self.features])) for t in self.features)
         for value, type in dataset:
             cl_type = self.classify(value)
-            if cl_type != type:
-                falses_ct += 1
-                falses_list.append((value, type, cl_type))
-        return float(falses_ct) / dataset.len * 100, falses_list
+            pos_neg_table[type][cl_type] += 1
+        recalls = {}
+        precisions = {}
+        for type in self.features:
+            recalls[type] = float(pos_neg_table[type][type]) / (sum(pos_neg_table[type].values()) + 0.001)
+            precisions[type] = float(pos_neg_table[type][type]) / \
+                               (sum(pos_neg_table[cl_type][type] for cl_type in pos_neg_table) + 0.001)
+        recall = sum(recalls.values()) / len(recalls)
+        precision = sum(precisions.values()) / len(precisions)
+        return recall, precision
 
     def classify(self, value):
         """Classifies value based on collected statistics"""

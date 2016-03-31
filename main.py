@@ -11,5 +11,5 @@ def guess():
 train, test = divide(DataSet("dataset_surnames.txt"), 80)
 BC = BayesClassifier(lambda x: {'last': x[-1], '2nd-last': x[-2], '3rd-last': x[-3]})
 BC.train(train)
-print BC.check(test)[0]
+print zip(['recall:', 'precision:'], BC.check(test))
 guess()
