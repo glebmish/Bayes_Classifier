@@ -1,42 +1,27 @@
 # coding=utf-8
 from collections import defaultdict
 from math import log
-import random
 import codecs
 
 
-def divide(dataset, percent):
+def divide(dataset, pc_left_bound, pc_right_bound):
     """Divides one dataset on two
     :param dataset: dataset to divide
-    :param percent: percent of records that should be stored in the first of returned datsets
-    :return: two datasets: largest one first
+    :param pc_left_bound: percent from which all records will be stored in the inner ds
+    :param pc_right_bound: percent to which all records will be stored in the inner ds
+    :return: two datasets: outer and inner
     """
-    percent = min(100, percent)
-    bigPercent = False
-    if percent > 50:
-        bigPercent = True
-        percent = 100 - percent
-
-    ds1 = DataSet()
-    ds2 = DataSet()
-    toDs1 = int(dataset.len / 100.0 * percent)
-    used = [False] * dataset.len
-
-    random.seed()
-    while ds1.len != toDs1:
-        cur = random.randint(0, dataset.len - 1)
-        if not used[cur]:
-            ds1.add(dataset.dataset[cur])
-            used[cur] = True
+    ds_outer = DataSet()
+    ds_inner = DataSet()
+    ct_left_bound = int(dataset.len / 100.0 * pc_left_bound)
+    ct_right_bound = int(dataset.len / 100.0 * pc_right_bound)
 
     for i in range(dataset.len):
-        if not used[i]:
-            ds2.add(dataset.dataset[i])
-
-    if bigPercent:
-        return ds2, ds1
-    else:
-        return ds1, ds2
+        if i in range(ct_left_bound, ct_right_bound):
+            ds_inner.add(dataset.dataset[i])
+        else:
+            ds_outer.add(dataset.dataset[i])
+    return ds_outer, ds_inner
 
 
 class DataSet:
